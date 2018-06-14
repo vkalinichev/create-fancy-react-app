@@ -48,8 +48,7 @@ const stylusRegex = /\.(styl)$/;
 
 // common function to get style loaders
 const getStyleLoaders = (cssOptions, preProcessorLoader) => {
-  const loaders = [
-    require.resolve('decss-loader/react'),
+  const loaders = [require.resolve('decss-loader/react')].concat(
     ExtractTextPlugin.extract(
       Object.assign(
         {
@@ -68,6 +67,7 @@ const getStyleLoaders = (cssOptions, preProcessorLoader) => {
               loader: require.resolve('postcss-loader'),
               options: {
                 ident: 'postcss',
+                sourceMap: shouldUseSourceMap,
                 plugins: () => [
                   require('postcss-flexbugs-fixes'),
                   autoprefixer({
@@ -86,8 +86,8 @@ const getStyleLoaders = (cssOptions, preProcessorLoader) => {
         },
         extractTextPluginOptions
       )
-    ),
-  ];
+    )
+  );
 
   if (preProcessorLoader) {
     loaders.push(preProcessorLoader);
