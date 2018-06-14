@@ -42,6 +42,59 @@ if (env.stringified['process.env'].NODE_ENV !== '"production"') {
   throw new Error('Production builds must have NODE_ENV=production.');
 }
 
+// style files regexes
+const cssRegex = /\.css$/;
+const stylusRegex = /\.(styl)$/;
+
+// common function to get style loaders
+const getStyleLoaders = (cssOptions, preProcessorLoader) => {
+  const loaders = [
+    require.resolve('decss-loader/react'),
+    ExtractTextPlugin.extract(
+      Object.assign(
+        {
+          fallback: {
+            loader: require.resolve('style-loader'),
+            options: {
+              hmr: false,
+            },
+          },
+          use: [
+            {
+              loader: require.resolve('css-loader'),
+              options: cssOptions,
+            },
+            {
+              loader: require.resolve('postcss-loader'),
+              options: {
+                ident: 'postcss',
+                plugins: () => [
+                  require('postcss-flexbugs-fixes'),
+                  autoprefixer({
+                    browsers: [
+                      '>1%',
+                      'last 4 versions',
+                      'Firefox ESR',
+                      'not ie < 9', // React doesn't support IE8 anyway
+                    ],
+                    flexbox: 'no-2009',
+                  }),
+                ],
+              },
+            },
+          ],
+        },
+        extractTextPluginOptions
+      )
+    ),
+  ];
+
+  if (preProcessorLoader) {
+    loaders.push(preProcessorLoader);
+  }
+  return loaders;
+};
+
 // Note: defined here because it will be used more than once.
 const cssFilename = 'static/css/[name].[contenthash:8].css';
 
@@ -180,64 +233,32 @@ module.exports = {
               compact: true,
             },
           },
-          // The notation here is somewhat confusing.
-          // "postcss" loader applies autoprefixer to our CSS.
-          // "css" loader resolves paths in CSS and adds assets as dependencies.
-          // "style" loader normally turns CSS into JS modules injecting <style>,
-          // but unlike in development configuration, we do something different.
-          // `ExtractTextPlugin` first applies the "postcss" and "css" loaders
-          // (second argument), then grabs the result CSS and puts it into a
-          // separate file in our build process. This way we actually ship
-          // a single CSS file in production instead of JS code injecting <style>
-          // tags. If you use code splitting, however, any async bundles will still
-          // use the "style" loader inside the async code so CSS from them won't be
-          // in the main CSS file.
           {
-            test: /\.css$/,
-            loader: ExtractTextPlugin.extract(
-              Object.assign(
-                {
-                  fallback: {
-                    loader: require.resolve('style-loader'),
-                    options: {
-                      hmr: false,
-                    },
-                  },
-                  use: [
-                    {
-                      loader: require.resolve('css-loader'),
-                      options: {
-                        importLoaders: 1,
-                        minimize: true,
-                        sourceMap: shouldUseSourceMap,
-                      },
-                    },
-                    {
-                      loader: require.resolve('postcss-loader'),
-                      options: {
-                        // Necessary for external CSS imports to work
-                        // https://github.com/facebookincubator/create-react-app/issues/2677
-                        ident: 'postcss',
-                        plugins: () => [
-                          require('postcss-flexbugs-fixes'),
-                          autoprefixer({
-                            browsers: [
-                              '>1%',
-                              'last 4 versions',
-                              'Firefox ESR',
-                              'not ie < 9', // React doesn't support IE8 anyway
-                            ],
-                            flexbox: 'no-2009',
-                          }),
-                        ],
-                      },
-                    },
-                  ],
+            test: cssRegex,
+            use: getStyleLoaders({
+              importLoaders: 1,
+              sourceMap: shouldUseSourceMap,
+              modules: true,
+              localIdentName: '[name]__[local]',
+            }),
+          },
+          {
+            test: stylusRegex,
+            loader: getStyleLoaders(
+              {
+                importLoaders: 1,
+                sourceMap: shouldUseSourceMap,
+                modules: true,
+                localIdentName: '[name]__[local]',
+              },
+              {
+                loader: require.resolve('stylus-loader'),
+                options: {
+                  sourceMap: shouldUseSourceMap,
+                  resolveUrl: true,
                 },
-                extractTextPluginOptions
-              )
+              }
             ),
-            // Note: this won't work without `new ExtractTextPlugin()` in `plugins`.
           },
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
