@@ -229,6 +229,7 @@ module.exports = {
               // @remove-on-eject-begin
               babelrc: false,
               presets: [require.resolve('babel-preset-react-app')],
+              plugins: [require.resolve('react-hot-loader/babel')],
               // @remove-on-eject-end
               compact: true,
             },

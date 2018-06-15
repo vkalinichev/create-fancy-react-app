@@ -1,6 +1,6 @@
 {
   "name": "react-fancy-scripts",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Configuration and scripts for Create React App.",
   "repository": "facebookincubator/create-react-app",
   "license": "MIT",
@@ -52,6 +52,7 @@
     "promise": "8.0.1",
     "raf": "3.4.0",
     "react-dev-utils": "^5.0.1",
+    "react-hot-loader": "^4.3.3",
     "resolve": "1.6.0",
     "style-loader": "0.19.0",
     "stylus": "^0.54.5",
