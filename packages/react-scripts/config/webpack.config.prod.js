@@ -260,6 +260,28 @@ module.exports = {
               }
             ),
           },
+          {
+            test: /\.svg$/,
+
+            use: [
+              {
+                loader: require.resolve('babel-loader'),
+                options: {
+                  // @remove-on-eject-begin
+                  babelrc: false,
+                  presets: [require.resolve('babel-preset-react-app')],
+                  // @remove-on-eject-end
+                  compact: true,
+                },
+              },
+              {
+                loader: require.resolve('react-svg-loader'),
+                options: {
+                  jsx: true,
+                },
+              },
+            ],
+          },
           // "file" loader makes sure assets end up in the `build` folder.
           // When you `import` an asset, you get its filename.
           // This loader doesn't use a "test" so it will catch all modules
